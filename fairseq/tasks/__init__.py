@@ -22,6 +22,7 @@ TASK_CLASS_NAMES = set()
 
 
 def setup_task(cfg: FairseqDataclass, **kwargs):
+    TASK_DATACLASS_REGISTRY
     task = None
     task_name = getattr(cfg, "task", None)
 

@@ -28,6 +28,7 @@ def hydra_init(cfg_name="config") -> None:
 
 
 def add_defaults(cfg: DictConfig) -> None:
+    import ipdb; ipdb.set_trace()
     """This function adds default values that are stored in dataclasses that hydra doesn't know about"""
 
     from fairseq.registry import REGISTRIES
