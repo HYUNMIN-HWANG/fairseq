@@ -78,7 +78,7 @@ def cli_main():
     try:
         from hydra._internal.utils import get_args
 
-        cfg_name = get_args().config_name or "config"
+        cfg_name = get_args().config_name or "config"   # cfg_name : base_librispeech
         import ipdb; ipdb.set_trace()
     except:
         logger.warning("Failed to get config name from hydra args")

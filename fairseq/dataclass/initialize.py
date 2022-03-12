@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def hydra_init(cfg_name="config") -> None:
-
+    import ipdb; ipdb.set_trace()
     cs = ConfigStore.instance()
     cs.store(name=f"{cfg_name}", node=FairseqConfig)
 
