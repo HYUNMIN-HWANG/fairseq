@@ -45,7 +45,7 @@ def get_parser():
 
 
 def main(args):
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     assert args.valid_percent >= 0 and args.valid_percent <= 1.0
 
     if not os.path.exists(args.dest):
