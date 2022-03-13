@@ -28,7 +28,7 @@ def hydra_main(cfg: FairseqConfig) -> float:
 
 
 def _hydra_main(cfg: FairseqConfig, **kwargs) -> float:
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     add_defaults(cfg)
 
     if cfg.common.reset_logging:
