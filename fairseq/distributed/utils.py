@@ -339,7 +339,7 @@ def call_main(cfg: FairseqConfig, main, **kwargs):
     if cfg.distributed_training.distributed_init_method is not None:
         # distributed training
         if not cfg.distributed_training.distributed_no_spawn:
-            start_rank = cfg.distributed_training.distributed_rank
+            start_rank = cfg.distributed_training.distributed_rank  # start_rank=0
             cfg.distributed_training.distributed_rank = None  # assign automatically
             kwargs["start_rank"] = start_rank
             torch.multiprocessing.spawn(
