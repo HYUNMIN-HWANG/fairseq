@@ -44,6 +44,7 @@ def is_master(cfg: DistributedTrainingConfig):
 
 
 def infer_init_method(cfg: DistributedTrainingConfig, force_distributed=False):
+    import ipdb; ipdb.set_trace()
     if cfg.distributed_init_method is not None or cfg.tpu:
         return
 
@@ -332,7 +333,7 @@ def distributed_main(i, main, cfg: FairseqConfig, kwargs):
 
 
 def call_main(cfg: FairseqConfig, main, **kwargs):
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     if cfg.distributed_training.distributed_init_method is None:
         infer_init_method(cfg.distributed_training)
 
