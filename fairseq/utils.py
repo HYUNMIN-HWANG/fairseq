@@ -813,7 +813,7 @@ def eval_bool(x, default=False):
 
 
 def reset_logging():
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     root = logging.getLogger()
     for handler in root.handlers:
         root.removeHandler(handler)

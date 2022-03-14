@@ -277,7 +277,7 @@ class FileAudioDataset(RawAudioDataset):
         self.fnames = []
         sizes = []
         self.skipped_indices = set()
-        import ipdb; ipdb.set_trace()   # manifest_path 출력해봐
+        # import ipdb; ipdb.set_trace()   # manifest_path 출력해봐
 
         with open(manifest_path, "r") as f:
             self.root_dir = f.readline().strip()

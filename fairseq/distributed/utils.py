@@ -44,7 +44,7 @@ def is_master(cfg: DistributedTrainingConfig):
 
 
 def infer_init_method(cfg: DistributedTrainingConfig, force_distributed=False):
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     if cfg.distributed_init_method is not None or cfg.tpu:
         return
 
@@ -61,13 +61,13 @@ def infer_init_method(cfg: DistributedTrainingConfig, force_distributed=False):
     elif cfg.distributed_port > 0:
         # we can determine the init method automatically for Slurm
         _infer_slurm_init(cfg, num_pipelines_per_node)
-    elif cfg.distributed_world_size > 1 or force_distributed:
+    elif cfg.distributed_world_size > 1 or force_distributed:   # 여기 실행됨
         # fallback for single node with multiple GPUs
         _infer_single_node_init(cfg)
 
     if cfg.pipeline_model_parallel:
         _pipeline_parallel_post_init(cfg, num_pipeline_devices, num_pipelines_per_node)
-    elif not cfg.distributed_no_spawn:
+    elif not cfg.distributed_no_spawn:                          # 여기 실행됨
         with open_dict(cfg):
             cfg.distributed_num_procs = min(
                 torch.cuda.device_count(), cfg.distributed_world_size
