@@ -794,7 +794,7 @@ class Trainer(object):
 
         # forward and backward pass
         logging_outputs, sample_size, ooms = [], 0, 0
-        import ipdb; ipdb.set_trace()   # sample_size 가 0인지 확인하기
+        # import ipdb; ipdb.set_trace()   # sample_size 가 0인지 확인하기
         for i, sample in enumerate(samples):  # delayed update loop
             sample, is_dummy_batch = self._prepare_sample(sample)
 
@@ -1506,6 +1506,7 @@ class Trainer(object):
                 )
 
         with metrics.aggregate() as agg:
+            import ipdb; ipdb.set_trace()
             if logging_outputs is not None:
                 self.task.reduce_metrics(logging_outputs, self.get_criterion())
                 del logging_outputs
