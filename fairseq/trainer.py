@@ -1506,7 +1506,7 @@ class Trainer(object):
                 )
 
         with metrics.aggregate() as agg:
-            import ipdb; ipdb.set_trace()
+            # import ipdb; ipdb.set_trace()
             if logging_outputs is not None:
                 self.task.reduce_metrics(logging_outputs, self.get_criterion())
                 del logging_outputs

@@ -111,7 +111,7 @@ class ModelCriterion(FairseqCriterion):
 
     @staticmethod
     def reduce_metrics(logging_outputs) -> None:
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         """Aggregate logging outputs from data parallel training."""
         loss_sum = utils.item(sum(log.get("loss", 0) for log in logging_outputs))
         ntokens = utils.item(sum(log.get("ntokens", 0) for log in logging_outputs))
