@@ -121,7 +121,9 @@ class ModelCriterion(FairseqCriterion):
         sample_size = utils.item(
             sum(log.get("sample_size", 0) for log in logging_outputs)
         )
-        print(loss_sum, "\t", sample_size)
+
+        import pdb; pdb.set_trace()
+        print("==================loss sum,: ", loss_sum, "\t sample_size", sample_size)
         metrics.log_scalar("loss", loss_sum / sample_size, sample_size, round=3)
         metrics.log_scalar("ntokens", ntokens)
         metrics.log_scalar("nsentences", nsentences)
