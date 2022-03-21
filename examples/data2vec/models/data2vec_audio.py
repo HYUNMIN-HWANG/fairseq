@@ -307,6 +307,7 @@ class Data2VecAudioModel(BaseFairseqModel):
         padding_count=None,
     ):
         features = source
+        import pdb; pdb.set_trace()
 
         if self.feature_grad_mult > 0:  # 1.0
             features = self.feature_extractor(features)
