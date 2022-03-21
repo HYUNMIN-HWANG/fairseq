@@ -37,43 +37,43 @@ logger = logging.getLogger(__name__)
 class Data2VecAudioConfig(Wav2Vec2Config):
 
     loss_beta: float = field(
-        default=0, metadata={"help": "beta for smooth l1 loss. 0 means use l2 loss"}
+        default=0, metadata={"help": "beta for smooth l1 loss. 0 means use l2 loss"}    # 0
     )
     loss_scale: Optional[float] = field(
         default=None,
         metadata={
-            "help": "scale the reconstruction loss by this constant. if None then scales by 1/sqrt(dim)"
+            "help": "scale the reconstruction loss by this constant. if None then scales by 1/sqrt(dim)"    # null
         },
     )
     average_top_k_layers: int = field(
-        default=8, metadata={"help": "how many layers to average"}
+        default=8, metadata={"help": "how many layers to average"}  # 8
     )
 
     layer_norm_target_layer: bool = False
-    instance_norm_target_layer: bool = False
+    instance_norm_target_layer: bool = False    # true
     instance_norm_targets: bool = False
     layer_norm_targets: bool = False
     batch_norm_target_layer: bool = False
     group_norm_target_layer: bool = False
 
-    ema_decay: float = field(default=0.999, metadata={"help": "initial ema decay rate"})
-    ema_end_decay: float = field(
-        default=0.9999, metadata={"help": "final ema decay rate"}
+    ema_decay: float = field(default=0.999, metadata={"help": "initial ema decay rate"})    # 0.999
+    ema_end_decay: float = field(   
+        default=0.9999, metadata={"help": "final ema decay rate"}   # 0.9999
     )
 
     # when to finish annealing ema decay rate
-    ema_anneal_end_step: int = II("optimization.max_update")
+    ema_anneal_end_step: int = II("optimization.max_update")    # 30000
 
     ema_transformer_only: bool = field(
         default=True,
-        metadata={"help": "whether to momentum update only the transformer"},
+        metadata={"help": "whether to momentum update only the transformer"},   # true
     )
     ema_layers_only: bool = field(
         default=True,
-        metadata={"help": "whether to momentum update only the transformer layers"},
+        metadata={"help": "whether to momentum update only the transformer layers"},    # true
     )
 
-    max_update: int = II("optimization.max_update")
+    max_update: int = II("optimization.max_update") # 400000
 
     min_target_var: float = field(
         default=0.1, metadata={"help": "stop training if target var falls below this"}
@@ -96,44 +96,44 @@ class Data2VecAudioModel(BaseFairseqModel):
         super().__init__()
         self.cfg = cfg
 
-        feature_enc_layers = eval(cfg.conv_feature_layers)
+        feature_enc_layers = eval(cfg.conv_feature_layers)  # [(dim, kernel_size, stride)] [(512, 10, 5)] + [(512, 3, 2)] * 4 + [(512,2,2)] + [(512,2,2)]
         self.extractor_embed = feature_enc_layers[-1][0]
 
         self.ema = None
-        self.embed = cfg.encoder_embed_dim
+        self.embed = cfg.encoder_embed_dim  # 768 -> 384
 
-        self.average_top_k_layers = cfg.average_top_k_layers
-        self.loss_beta = cfg.loss_beta
-        self.loss_scale = cfg.loss_scale
+        self.average_top_k_layers = cfg.average_top_k_layers    # 8
+        self.loss_beta = cfg.loss_beta  # 0
+        self.loss_scale = cfg.loss_scale    # null
 
         self.feature_extractor = ConvFeatureExtractionModel(
             conv_layers=feature_enc_layers,
             dropout=0.0,
-            mode=cfg.extractor_mode,
-            conv_bias=cfg.conv_bias,
+            mode=cfg.extractor_mode,    # layer_norm
+            conv_bias=cfg.conv_bias,    # False
         )
 
         self.post_extract_proj = nn.Linear(self.extractor_embed, cfg.encoder_embed_dim)
 
-        self.mask_prob = cfg.mask_prob
-        self.mask_selection = cfg.mask_selection
-        self.mask_other = cfg.mask_other
-        self.mask_length = cfg.mask_length
-        self.no_mask_overlap = cfg.no_mask_overlap
-        self.mask_min_space = cfg.mask_min_space
+        self.mask_prob = cfg.mask_prob  # 0.65
+        self.mask_selection = cfg.mask_selection    # static
+        self.mask_other = cfg.mask_other    # 0
+        self.mask_length = cfg.mask_length  # 10
+        self.no_mask_overlap = cfg.no_mask_overlap  # false
+        self.mask_min_space = cfg.mask_min_space    # 1
 
-        self.mask_channel_prob = cfg.mask_channel_prob
-        self.mask_channel_before = cfg.mask_channel_before
-        self.mask_channel_selection = cfg.mask_channel_selection
-        self.mask_channel_other = cfg.mask_channel_other
-        self.mask_channel_length = cfg.mask_channel_length
-        self.no_mask_channel_overlap = cfg.no_mask_channel_overlap
-        self.mask_channel_min_space = cfg.mask_channel_min_space
+        self.mask_channel_prob = cfg.mask_channel_prob  # 0.0
+        self.mask_channel_before = cfg.mask_channel_before  
+        self.mask_channel_selection = cfg.mask_channel_selection # static
+        self.mask_channel_other = cfg.mask_channel_other    # 0
+        self.mask_channel_length = cfg.mask_channel_length  # 10
+        self.no_mask_channel_overlap = cfg.no_mask_channel_overlap  # false
+        self.mask_channel_min_space = cfg.mask_channel_min_space    # 1
 
-        self.dropout_input = nn.Dropout(cfg.dropout_input)
-        self.dropout_features = nn.Dropout(cfg.dropout_features)
+        self.dropout_input = nn.Dropout(cfg.dropout_input)  # 0.0
+        self.dropout_features = nn.Dropout(cfg.dropout_features)    # 0.0
 
-        self.feature_grad_mult = cfg.feature_grad_mult
+        self.feature_grad_mult = cfg.feature_grad_mult  # 1.0
 
         self.mask_emb = nn.Parameter(
             torch.FloatTensor(cfg.encoder_embed_dim).uniform_()
@@ -148,7 +148,7 @@ class Data2VecAudioModel(BaseFairseqModel):
 
     def make_ema_teacher(self):
         ema_config = EMAModuleConfig(
-            ema_decay=self.cfg.ema_decay,
+            ema_decay=self.cfg.ema_decay,   # 0.999
             ema_fp32=True,
         )
         skip_keys = set()
@@ -217,16 +217,16 @@ class Data2VecAudioModel(BaseFairseqModel):
     ):
         B, T, C = x.shape
 
-        if self.mask_channel_prob > 0 and self.mask_channel_before:
-            mask_channel_indices = compute_mask_indices(
-                (B, C),
+        if self.mask_channel_prob > 0 and self.mask_channel_before: # 0.0
+            mask_channel_indices = compute_mask_indices(    # Computes random mask spans for a given shape
+                (B, C),                                     # (batch size, timesteps)
                 None,
                 self.mask_channel_prob,
                 self.mask_channel_length,
                 self.mask_channel_selection,
                 self.mask_channel_other,
-                no_overlap=self.no_mask_channel_overlap,
-                min_space=self.mask_channel_min_space,
+                no_overlap=self.no_mask_channel_overlap,    # false 
+                min_space=self.mask_channel_min_space,      # 1 
             )
             mask_channel_indices = (
                 torch.from_numpy(mask_channel_indices)
@@ -236,7 +236,7 @@ class Data2VecAudioModel(BaseFairseqModel):
             )
             x[mask_channel_indices] = 0
 
-        if self.mask_prob > 0:
+        if self.mask_prob > 0:  # 0.65 * 여기 실행될 듯
             if mask_indices is None:
                 mask_indices = compute_mask_indices(
                     (B, T),
@@ -308,7 +308,7 @@ class Data2VecAudioModel(BaseFairseqModel):
     ):
         features = source
 
-        if self.feature_grad_mult > 0:
+        if self.feature_grad_mult > 0:  # 1.0
             features = self.feature_extractor(features)
             if self.feature_grad_mult != 1.0:
                 features = GradMultiply.apply(features, self.feature_grad_mult)
@@ -380,7 +380,7 @@ class Data2VecAudioModel(BaseFairseqModel):
             "losses": {},
         }
 
-        with torch.no_grad():
+        with torch.no_grad():   # validation
             self.ema.model.eval()
 
             if self.cfg.ema_transformer_only:
@@ -418,7 +418,7 @@ class Data2VecAudioModel(BaseFairseqModel):
                     for tl in target_layer_results
                 ]
 
-            if self.cfg.instance_norm_target_layer:
+            if self.cfg.instance_norm_target_layer: # true
                 target_layer_results = [
                     F.instance_norm(tl.float()) for tl in target_layer_results
                 ]
