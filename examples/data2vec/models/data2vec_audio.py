@@ -307,21 +307,21 @@ class Data2VecAudioModel(BaseFairseqModel):
         padding_count=None,
     ):
         features = source
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace() # *****************************************************************************
 
         if self.feature_grad_mult > 0:  # 1.0
-            features = self.feature_extractor(features)
+            features = self.feature_extractor(features) # model에서 feature_extractor 부분만 해당됨
             if self.feature_grad_mult != 1.0:
                 features = GradMultiply.apply(features, self.feature_grad_mult)
         else:
             with torch.no_grad():
                 features = self.feature_extractor(features)
 
-        features = features.transpose(1, 2)
+        features = features.transpose(1, 2)     # torch.Size([30, 512, 391]) -> torch.Size([30, 391, 512])
 
-        features = self.layer_norm(features)
+        features = self.layer_norm(features)    # torch.Size([30, 391, 512]) (layer_norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
 
-        orig_padding_mask = padding_mask
+        orig_padding_mask = padding_mask        # none
 
         if padding_mask is not None and padding_mask.any():
             input_lengths = (1 - padding_mask.long()).sum(-1)
@@ -344,17 +344,17 @@ class Data2VecAudioModel(BaseFairseqModel):
         else:
             padding_mask = None
 
-        if self.post_extract_proj is not None:
+        if self.post_extract_proj is not None:              # torch.Size([30, 391, 384]) Linear(in_features=512, out_features=384, bias=True)
             features = self.post_extract_proj(features)
 
         pre_encoder_features = None
-        if self.cfg.ema_transformer_only:
-            pre_encoder_features = features.clone()
+        if self.cfg.ema_transformer_only:                   # True
+            pre_encoder_features = features.clone()         # torch.Size([30, 391, 384]) pre_encoder_features = features
+ 
+        features = self.dropout_input(features)             # Dropout(p=0.0, inplace=False)
 
-        features = self.dropout_input(features)
-
-        if mask:
-            x, mask_indices = self.apply_mask(
+        if mask:                                            # True
+            x, mask_indices = self.apply_mask(              # x : torch.Size([30, 391, 384]), mask_indices : torch.Size([30, 391])
                 features,
                 padding_mask,
                 mask_indices=mask_indices,
@@ -364,7 +364,7 @@ class Data2VecAudioModel(BaseFairseqModel):
             x = features
             mask_indices = None
 
-        x, layer_results = self.encoder(
+        x, layer_results = self.encoder(    #  OOM: Ran out of memory with exception: CUDA out of memory. Tried to allocate 70.00 MiB (GPU 0; 10.76 GiB total capacity; 9.50 GiB already allocated; 10.56 MiB free; 9.59 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF *****************************
             x,
             padding_mask=padding_mask,
             layer=layer,
