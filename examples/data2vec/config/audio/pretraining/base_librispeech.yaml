@@ -28,7 +28,7 @@ dataset:
   disable_validation: true
 
 distributed_training:
-  distributed_world_size: 16
+  distributed_world_size: 4  # 4로 바꿔볼까.. # 16
   ddp_backend: legacy_ddp
 
 criterion:
