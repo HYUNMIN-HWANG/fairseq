@@ -52,7 +52,7 @@ def main(args):
         os.makedirs(args.dest)
 
     dir_path = os.path.realpath(args.root)
-    search_path = os.path.join(dir_path, "**/**/*." + args.ext)    # 경로 확인 ***
+    search_path = os.path.join(dir_path, "**/*." + args.ext)    # 경로 확인 ***
     rand = random.Random(args.seed)
 
     valid_f = (
